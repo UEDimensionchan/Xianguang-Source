@@ -1,0 +1,3 @@
+{"meta":{"name":"桔梗 Kikyo","authors":["ぽんでろ"],"license":"VN3 ライセンス（Kikyo_license.pdf）"},
+ "expressions":{"blink":"vrc.Blink","aa":"vrc.v_aa","ih":"vrc.v_ih","ou":"vrc.v_ou","ee":"vrc.v_e","oh":"vrc.v_oh","happy":["笑い"],"lookUp":"vrc.Looking Up","lookDown":"vrc.Looking Down"},
+ "springParams":{"breast":{"stiffness":2.5,"gravityPower":0.0,"dragForce":0.6,"hitRadius":0.03},"skirt|coat":{"stiffness":1.6,"gravityPower":0.05,"dragForce":0.5,"hitRadius":0.03}}}

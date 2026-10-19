@@ -1,0 +1,13 @@
+  // MMD 粉丝模型（Character 文件夹转的 VRM，tools/vrm/pmx2vrm_blender.py + glb2vrm.py）：只放本地，不要上传到网页
+  { id: 'sakamata', name: '露希', file: 'Asset/Character/VRM/MMD/SAKAMATA.vrm', color: '#d0d0dc', face: 'Asset/UI/Lobby/nav_av6.jpg', persona: 'luxi' },
+  { id: 'bijou', name: '白羽', file: 'Asset/Character/VRM/MMD/BIJOU.vrm', color: '#c9b6ff', face: 'Asset/UI/Lobby/nav_av7.jpg', persona: 'baiyu' },
+  { id: 'bijou2', name: '白羽', file: 'Asset/Character/VRM/MMD/BIJOU2.vrm', color: '#c9b6ff', face: 'Asset/UI/Lobby/nav_av7.jpg', persona: 'baiyu' },
+  { id: 'chihaya', name: '黛音', file: 'Asset/Character/VRM/MMD/CHIHAYA.vrm', color: '#3fd6d0', face: 'Asset/UI/Lobby/nav_chihaya.jpg', persona: 'daiyin' },
+  { id: 'chihaya2', name: '黛音', file: 'Asset/Character/VRM/MMD/CHIHAYA2.vrm', color: '#3fd6d0', face: 'Asset/UI/Lobby/nav_chihaya.jpg', persona: 'daiyin' },
+  { id: 'sakuna', name: '绯樱', file: 'Asset/Character/VRM/MMD/SAKUNA.vrm', color: '#ff8fbf', face: 'Asset/UI/Lobby/nav_sakuna.jpg', persona: 'feiying' },
+  { id: 'pekomama', name: '雪兔', file: 'Asset/Character/VRM/MMD/PEKOMAMA.vrm', color: '#8fc2ff', face: 'Asset/UI/Lobby/nav_pekomama.jpg', persona: 'xuetu' },
+  { id: 'vivi', name: '琉璃', file: 'Asset/Character/VRM/MMD/VIVI.vrm', color: '#d58cff', face: 'Asset/UI/Lobby/nav_vivi.jpg', persona: 'liuli' },
+  { id: 'calli_k2l', name: '绮罗', file: 'Asset/Character/VRM/MMD/CALLI_kawaii2_Long.vrm', color: '#ff9fb8', face: 'Asset/UI/Lobby/nav_calli.jpg', persona: 'qiluo' },
+  { id: 'calli_k2s', name: '绮罗', file: 'Asset/Character/VRM/MMD/CALLI_kawaii2_Short.vrm', color: '#ff9fb8', face: 'Asset/UI/Lobby/nav_calli.jpg', persona: 'qiluo' },
+  { id: 'calli_kl', name: '绮罗', file: 'Asset/Character/VRM/MMD/CALLI_kawaii_Long.vrm', color: '#ff9fb8', face: 'Asset/UI/Lobby/nav_calli.jpg', persona: 'qiluo' },
+  { id: 'calli_ks', name: '绮罗', file: 'Asset/Character/VRM/MMD/CALLI_kawaii_Short.vrm', color: '#ff9fb8', face: 'Asset/UI/Lobby/nav_calli.jpg', persona: 'qiluo' },

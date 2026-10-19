@@ -1,0 +1,91 @@
+:root {
+  --ink: #26263d;
+  --paper: #fffaf0;
+  --accent: #ff6f91;
+  --sky: #7fc8ff;
+  --font: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #bfe6ff; font-family: var(--font); color: var(--ink); user-select: none; }
+#app canvas { display: block; }
+
+kbd {
+  display: inline-block; min-width: 22px; padding: 1px 6px; margin-right: 6px;
+  border: 2px solid var(--ink); border-bottom-width: 3px; border-radius: 6px;
+  background: var(--paper); font: 700 12px/18px var(--font); text-align: center;
+}
+
+/* —— 覆盖层 —— */
+.overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 20;
+  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.55), rgba(150,200,255,.35)); backdrop-filter: blur(3px); }
+#start { display: flex; }
+#start.hide { display: none; }
+.overlay.show { display: flex; }
+
+.panel {
+  width: min(680px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto;
+  background: var(--paper); border: 3px solid var(--ink); border-radius: 18px; padding: 28px 30px;
+  box-shadow: 8px 8px 0 var(--ink); transform: rotate(-0.6deg);
+}
+.panel.small { width: 340px; text-align: center; }
+.logo { font-size: 52px; font-weight: 900; letter-spacing: 2px; line-height: 1; }
+.logo span { color: var(--accent); -webkit-text-stroke: 2px var(--ink); }
+.sub { margin: 8px 0 0; color: #5a5a75; font-size: 14px; }
+h3 { margin: 22px 0 10px; font-size: 15px; }
+
+#char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.char-card {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer;
+  background: #fff; border: 2px solid var(--ink); border-radius: 12px; font: 600 14px var(--font); color: var(--ink);
+  transition: transform .12s, box-shadow .12s;
+}
+.char-card .swatch { width: 22px; height: 30px; border-radius: 4px; background: var(--c); border: 2px solid var(--ink); }
+.char-card:hover { transform: translate(-2px, -2px); box-shadow: 3px 3px 0 var(--ink); }
+.char-card.sel { background: color-mix(in srgb, var(--c) 35%, white); box-shadow: 4px 4px 0 var(--ink); transform: translate(-2px, -2px); }
+
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin: 20px 0; font-size: 14px; }
+#start-btn {
+  width: 100%; padding: 14px; font: 800 20px var(--font); cursor: pointer; color: #fff;
+  background: var(--accent); border: 3px solid var(--ink); border-radius: 14px; box-shadow: 5px 5px 0 var(--ink);
+}
+#start-btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.credit { margin: 14px 0 0; font-size: 12px; color: #8a8aa0; text-align: center; }
+
+.bar { height: 14px; border: 2px solid var(--ink); border-radius: 8px; overflow: hidden; background: #fff; margin-top: 10px; }
+#load-progress { height: 100%; width: 5%; background: var(--sky); transition: width .2s; }
+#pause { cursor: pointer; }
+
+/* —— HUD —— */
+#hud { position: fixed; inset: 0; pointer-events: none; display: none; z-index: 10; }
+#hud.show { display: block; }
+
+#paper-overlay { position: absolute; inset: 0; opacity: 0;
+  box-shadow: inset 0 0 0 10px #fffaf0, inset 0 0 120px rgba(255,250,235,.9);
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 2px, transparent 2px 6px); }
+/* 狙击镜：圆形镜片外面全黑，十字分划线 + 中心红点 */
+#scope { position: absolute; inset: 0; opacity: 0; transition: opacity .08s; pointer-events: none;
+  --r: min(44vh, 44vw);
+  background: radial-gradient(circle at 50% 50%, transparent calc(var(--r) - 2px), #000 var(--r)); }
+#scope.on { opacity: 1; }
+#scope .lens { position: absolute; left: 50%; top: 50%; width: calc(var(--r) * 2); height: calc(var(--r) * 2); transform: translate(-50%, -50%); border-radius: 50%;
+  box-shadow: inset 0 0 calc(var(--r) * .35) rgba(0, 0, 0, .55), 0 0 0 4px #111; background: radial-gradient(circle at 38% 32%, rgba(180, 220, 255, .10), transparent 45%); }
+#scope i { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+/* 粗的外段 + 细的中心线（双粗细分划） */
+#scope i.h { width: calc(var(--r) * 2); height: 4px; background: linear-gradient(90deg, #111 0 36%, transparent 36% 64%, #111 64%); }
+#scope i.v { width: 4px; height: calc(var(--r) * 2); background: linear-gradient(180deg, #111 0 36%, transparent 36% 64%, #111 64%); }
+#scope i.h::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; margin-top: -.5px; background: #111; }
+#scope i.v::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; margin-left: -.5px; background: #111; }
+#scope b { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: #ff3050; box-shadow: 0 0 4px #ff3050; }
+#dmg-dirs { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.dmg-dir { position: absolute; left: -60px; top: -20px; width: 120px; height: 40px; transform-origin: 60px 20px; opacity: 0; filter: drop-shadow(0 0 6px rgba(255, 30, 60, .8)); }
+.dmg-dir .arc { fill: none; stroke: #ff2a48; stroke-width: 7; stroke-linecap: round; }
+.dmg-dir .tip { fill: #ff2a48; }
+#damage-vignette { position: absolute; inset: 0; opacity: 0; box-shadow: inset 0 0 160px rgba(255,40,80,.75); }
+
+
+
+
+
+
+
+

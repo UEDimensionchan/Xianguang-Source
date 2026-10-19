@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>纸片枪战 · 训练场</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="hud.css">
+<link rel="stylesheet" href="hud-skin.css">
+<link rel="stylesheet" href="lobby.css">
+<link rel="stylesheet" href="lobby-pages.css">
+<link rel="stylesheet" href="menu.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.js",
+    "three/addons/": "./vendor/three/addons/",
+    "@pixiv/three-vrm": "./vendor/three-vrm/three-vrm.module.min.js"
+  }
+}
+</script>
+</head>
+<body>
+<!-- 启动动画（src/intro.js 负责播放；测试模式 ?test 或 ?nointro 时直接移除） -->
+<section id="intro"><video playsinline preload="auto"><source src="Asset/UI/intro.mp4" type="video/mp4"><source src="Asset/UI/intro.webm" type="video/webm"></video><div class="intro-tip">点击开启声音</div></section>
+<script>
+  (() => { // 模块脚本加载要一会儿：这里先开始播，免得先闪一下大厅
+    const q = new URLSearchParams(location.search), el = document.getElementById('intro');
+    // 只在刚启动时播一次：返回大厅（页面重载）时同一会话里已经播过就跳过
+    let seen = false; try { seen = sessionStorage.getItem('pl.introSeen') === '1'; sessionStorage.setItem('pl.introSeen', '1'); } catch (e) {}
+    if (seen || q.has('test') || q.has('nointro')) { el.remove(); return; }
+    const v = el.querySelector('video');
+    v.play().catch(() => { v.muted = true; el.querySelector('.intro-tip').classList.add('on'); v.play().catch(() => {}); });
+  })();
+</script>
+<div id="app"></div>
+
+<!-- 主界面（大厅）：按「弦光 · 主界面」设计稿拼的静态界面，目前只有「开始匹配」和「引航者 / 角色详情」能点 -->
+<section id="lobby">
+  <div class="lb-bg"><video class="lb-video" src="Asset/UI/Lobby/lobby_bg.mp4" poster="Asset/UI/Lobby/bg.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video></div>
+  <div class="lb-stage">
+
+    <img class="lb-logo" src="Asset/UI/Lobby/logo.png" alt="弦光 PRISM / LINK">
+    <nav class="lb-nav">
+      <a class="on">大厅</a><a>引航者</a><a>武器</a><a>仓库</a><a>商城</a>
+    </nav>
+
+    <div class="lb-res">
+      <span class="cur"><img src="Asset/UI/Lobby/coin.png" alt=""><b>12,580</b></span><i class="sep"></i>
+      <span class="cur"><img src="Asset/UI/Lobby/crystal.png" alt=""><b>680</b></span><i class="sep"></i>
+      <span class="ico mail"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="1.5"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg><em></em></span>
+      <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8l1.6 2.3 2.7-.8.6 2.8 2.7 1-1 2.6 1.9 2-2.2 1.8.6 2.8-2.8.4-.8 2.7-2.6-1.1L12 21.2l-1.6-2.3-2.7.8-.6-2.8-2.7-1 1-2.6-1.9-2 2.2-1.8-.6-2.8 2.8-.4.8-2.7 2.6 1.1z"/></svg></span>
+    </div>
+
+    <div class="lb-profile glass">
+      <img class="av" src="Asset/UI/Lobby/avatar.png" alt="">
+      <div class="pf"><b>白昼航线</b><span>Lv. 38</span><div class="xp"><i style="width:62%"></i></div></div>
+      <svg class="edit" viewBox="0 0 24 24"><path d="M4 20h4l11-11-4-4L4 16z"/><path d="M14 6l4 4"/></svg>
+    </div>
+
+    <div class="lb-page" data-page="home">
+    <img class="lb-char" src="Asset/UI/Lobby/navigator.png" alt="">
+    <div class="lb-hero">
+      <div class="code">NAVIGATOR / 07</div>
+      <div class="name">凛</div>
+      <div class="motto">凌空而至，自由成锋。</div>
+      <button class="detail" data-open="chars">角色详情<span class="chev"></span></button>
+    </div>
+
+    <div class="lb-card event"><div class="t">晴空来信</div><div class="s">限时活动<span class="chev"></span></div></div>
+    <div class="lb-card pass"><div class="t">航迹通行证</div><div class="s">赛季 03<span class="chev"></span></div></div>
+
+    <div class="lb-chat glass">
+      <svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h.01M12 10h.01M16 10h.01" class="dots"/></svg>
+      <span class="ch">[世界]</span><span class="msg">星海漫游者：有没有一起打的？来个固定队友～</span><span class="chev"></span>
+    </div>
+
+    <div class="lb-daily glass">
+      <div class="dt"><b>每日任务</b><span>2/3</span><div class="bar"><i style="width:66%"></i></div></div>
+      <div class="rw"><img src="Asset/UI/Lobby/reward_box.png" alt=""><img src="Asset/UI/Lobby/reward_crystal.png" alt=""><img src="Asset/UI/Lobby/reward_coin.png" alt=""></div>
+      <span class="chev"></span>
+    </div>
+
+    <div class="lb-squad glass">
+      <div class="hd">小队 <span>1/5</span><span class="up"></span></div>
+      <div class="slot me"><img src="Asset/UI/Lobby/avatar.png" alt=""></div>
+      <div class="slot add"></div><div class="slot add"></div><div class="slot add"></div><div class="slot add"></div>
+      <div class="friends">好友 08<span class="chev"></span></div>
+    </div>
+
+    <div class="lb-rank glass">
+      <img src="Asset/UI/Lobby/rank.png" alt="">
+      <div class="rk"><b>铂金 II</b><span><em>128</em> / 200</span></div>
+      <span class="chev"></span>
+    </div>
+
+    <div class="lb-mode glass">
+      <div class="md"><span>竞技模式</span><b>爆破行动</b></div>
+      <div class="pv"></div>
+      <span class="dd"></span>
+    </div>
+
+    <button class="lb-start" id="lobby-start"><span>开始匹配</span><span class="chev"></span></button>
+    <div class="lb-deco"><i>///</i> PRISM / LINK</div>
+    </div>
+  </div>
+</section>
+
+<!-- 角色选择（从大厅的「引航者」「角色详情」打开） -->
+<section id="start" class="overlay hide">
+  <div class="panel">
+    <div class="logo"><span>纸片</span>枪战</div>
+    <p class="sub">训练场原型 · 侧身纸化躲避纸飞机，击破纸片靶</p>
+    <h3>选择角色</h3>
+    <div id="char-grid"></div>
+    <div class="controls">
+      <div><kbd>WASD</kbd>移动</div><div><kbd>空格</kbd>跳跃</div><div><kbd>Shift</kbd>冲刺跑（耗体力）</div>
+      <div><kbd>左键</kbd>射击</div><div><kbd>R</kbd>换弹</div>
+      <div><kbd>右键</kbd>瞄准（狙击枪开 3 倍镜）</div><div><kbd>C</kbd>/<kbd>Ctrl</kbd>纸化（按住）</div><div><kbd>E</kbd>纸鹤突进</div>
+      <div><kbd>Q</kbd>墨水炸弹</div><div><kbd>1</kbd>–<kbd>8</kbd>/滚轮 切换武器</div>
+      <div><kbd>V</kbd>切换第一/第三人称</div><div><kbd>Esc</kbd>暂停</div>
+    </div>
+    <button id="start-btn">进入训练场</button>
+    <p class="credit">素材授权见 Asset/LICENSES.md · 枪械 Infima Games · 动作 Quaternius · 地图 three.js · 枪声 Snake / F8 Studios · 音效 Kenney</p>
+  </div>
+</section>
+
+<section id="loading">
+  <div class="ld-img"></div>
+  <div class="ld-shade"></div>
+  <div class="ld-title">
+    <span class="ld-mode">训练场</span>
+    <h1 class="ld-name">晴空露台</h1>
+    <p class="ld-en">SKY TERRACE</p>
+    <p class="ld-desc"></p>
+  </div>
+  <div class="ld-tip"><b>TIPS</b><span></span></div>
+  <div class="ld-prog">
+    <div class="ld-row"><span id="load-text">加载中</span><b id="load-pct">0<small>%</small></b></div>
+    <div class="ld-bar"><div id="load-progress"></div></div>
+  </div>
+</section>
+
+<!-- 游戏 HUD -->
+<section id="hud">
+  <div id="paper-overlay"></div>
+  <div id="damage-vignette"></div>
+  <div id="scope"><div class="lens"></div><i class="h"></i><i class="v"></i><b></b></div>
+  <!-- 火箭筒第一人称瞄准：测距仪 -->
+  <div id="rangefinder">
+    <svg viewBox="-200 -200 400 400" class="rf-svg">
+      <defs>
+        <radialGradient id="rfGlow"><stop offset="0" stop-color="#4cc9ff" stop-opacity=".16"/><stop offset=".75" stop-color="#4cc9ff" stop-opacity=".05"/><stop offset="1" stop-color="#4cc9ff" stop-opacity="0"/></radialGradient>
+        <pattern id="rfGrid" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M12 0H0V12" fill="none" stroke="#7fdcff" stroke-opacity=".10" stroke-width="1"/></pattern>
+        <clipPath id="rfClip"><circle r="150"/></clipPath>
+      </defs>
+      <circle r="160" fill="url(#rfGlow)"/>
+      <g clip-path="url(#rfClip)"><rect x="-150" y="-150" width="300" height="300" fill="url(#rfGrid)"/></g>
+      <g class="ripples"><circle r="30"/><circle r="30"/><circle r="30"/></g>
+      <circle r="150" class="ring"/>
+      <g class="spin"><path d="M0 -150 A150 150 0 0 1 106 -106" class="arc"/><path d="M0 150 A150 150 0 0 1 -106 106" class="arc"/></g>
+      <g class="ticks"></g>
+      <g class="brk"><path d="M-46 -30v-16h16M46 -30v-16h-16M-46 30v16h16M46 30v16h-16"/></g>
+      <circle r="5" class="dot"/>
+      <path d="M-26 0h-14M26 0h14M0 -26v-14M0 26v14" class="cross"/>
+    </svg>
+    <div class="rf-range"><span class="lbl">RANGE · 距离</span><b id="rf-dist">---.-</b><span class="unit">m</span></div>
+    <div class="rf-info"><span class="lbl">爆炸半径</span><b id="rf-radius">4.2 m</b><span class="lbl">状态</span><b id="rf-state">已装填</b></div>
+    <div class="rf-ladder"><i id="rf-pointer"></i></div>
+    <div class="rf-lock" id="rf-lock">目标锁定</div>
+  </div>
+  <!-- 第一人称瞄准时的准心圈（轻机枪） -->
+  <div id="reticle"><svg viewBox="-60 -60 120 120"><circle r="2.6" class="dot"/></svg></div>
+  <div id="markers"></div>
+  <div id="dmg-dirs"></div>
+  <div id="crosshair"><i></i><i></i><i></i><i></i></div>
+  <!-- 换弹进度：准心右侧的一段圆弧，从下往上充满，满了发一下光再淡出 -->
+  <div id="reload-arc"><svg viewBox="-50 -50 100 100"><path class="bg" d="M 17 29.4 A 34 34 0 0 0 17 -29.4" pathLength="100"/><path class="fg" d="M 17 29.4 A 34 34 0 0 0 17 -29.4" pathLength="100"/><circle class="tip" r="2.6"/></svg></div>
+  <div id="hitmarker"><i></i><i></i><i></i><i></i></div>
+  <div id="float-layer"></div>
+
+  <!-- 左上：小地图 -->
+  <div id="minimap" class="panel-ui">
+    <canvas id="minimap-canvas" width="240" height="240"></canvas>
+    <div class="map-name" id="map-name">训练场</div>
+  </div>
+
+  <!-- 顶部：比分与计时 -->
+  <div id="match">
+    <div class="side ally" id="ally-faces"></div>
+    <div class="score ally"><b id="score-ally">0</b></div>
+    <div class="clock"><b id="match-time">00:00</b></div>
+    <div class="score enemy"><b id="score-enemy">0</b></div>
+    <div class="side enemy" id="enemy-faces"></div>
+    <div class="mode" id="match-mode">训练场 · 命中率 —</div>
+  </div>
+
+  <!-- 右上：网络状态 + 击杀播报 -->
+  <div id="net"><i></i><i></i><i></i><i></i><span id="net-text">60 fps</span></div>
+  <div id="killfeed"></div>
+  <div id="notice"></div>
+
+  <!-- 左下：头像、生命、纸化能量 -->
+  <div id="vitals" class="panel-ui">
+    <div class="face"><img id="self-face" alt=""></div>
+    <div class="info">
+      <div class="name" id="char-name"></div>
+      <div class="hp-row"><span class="plus"></span><b id="hp-text">100</b><div class="vbar"><div id="hp-fill"></div></div></div>
+      <div class="sh-row"><span class="shield"></span><b id="energy-text">100</b><div class="vbar thin"><div id="energy-fill"></div></div></div>
+    </div>
+  </div>
+
+  <!-- 冲刺体力：第三人称是角色头部右边的竖条，第一人称是准心下方的横条；跑的时候出现，回满后淡出 -->
+  <div id="stamina"><i></i></div>
+
+  <!-- 底部中间：技能 -->
+  <div id="skills">
+    <div class="skill" id="skill-q"><div class="pad"><img class="ic" src="Asset/UI/HUD/skill_bomb.png" alt=""><span class="cd"></span></div><kbd>Q</kbd><label>墨水炸弹</label></div>
+    <div class="skill" id="skill-e"><div class="pad"><img class="ic" src="Asset/UI/HUD/skill_dash.png" alt=""><span class="cd"></span></div><kbd>E</kbd><label>纸鹤突进</label></div>
+    <div class="skill paper" id="skill-c"><div class="pad"><div class="fill" id="paper-fill"></div><img class="ic" src="Asset/UI/HUD/skill_paper.png" alt=""><span class="state" id="paper-state">可用</span></div><kbd>C</kbd><label>纸化</label></div>
+  </div>
+
+  <!-- 右下：武器槽 + 弹药 -->
+  <div id="slots"></div>
+  <div id="ammo-box" class="panel-ui">
+    <div class="wname" id="weapon-name"></div>
+    <div class="row"><span class="bullets"><i></i><i></i><i></i></span><b id="ammo-cur">30</b><span class="sep">/</span><span id="ammo-max">30</span></div>
+    <div id="reload">换弹中</div>
+  </div>
+</section>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

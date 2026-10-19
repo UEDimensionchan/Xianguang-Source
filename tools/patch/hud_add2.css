@@ -1,0 +1,11 @@
+
+/* 冲刺体力圆弧：橙色，从下往上是满；耗尽变红，恢复满后慢慢淡出 */
+#stamina { position: absolute; left: 0; top: 0; width: calc(var(--u) * 80); height: calc(var(--u) * 80); margin: calc(var(--u) * -40) 0 0 calc(var(--u) * -40);
+  opacity: 0; transition: opacity .9s ease; pointer-events: none; will-change: transform; }
+#stamina.on { opacity: 1; transition: opacity .15s; }
+#stamina svg { width: 100%; height: 100%; overflow: visible; }
+#stamina path { fill: none; stroke-linecap: round; }
+#stamina .bg { stroke: rgba(10, 16, 22, .4); stroke-width: 7; }
+#stamina .fg { stroke: #ffa53a; stroke-width: 4.5; stroke-dasharray: 100 100; stroke-dashoffset: 0; filter: drop-shadow(0 0 3px rgba(255, 150, 40, .75)); transition: stroke .3s; }
+#stamina.tired .fg { stroke: #ff4a3d; filter: drop-shadow(0 0 4px rgba(255, 60, 50, .9)); animation: stTired .8s ease-in-out infinite; }
+@keyframes stTired { 50% { opacity: .55; } }

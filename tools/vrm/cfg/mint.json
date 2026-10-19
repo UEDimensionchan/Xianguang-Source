@@ -1,0 +1,3 @@
+{"meta":{"name":"ミント Mint","authors":["あまとうさぎ"],"license":"VN3 ライセンス（Terms of use）"},
+ "expressions":{"blink":"blink","blinkLeft":"blink_L","blinkRight":"blink_R","aa":"VRC.v_aa","ih":"VRC.v_ih","ou":"VRC.v_ou","ee":"VRC.v_E","oh":"VRC.v_oh","happy":["smile"]},
+ "springParams":{"tail":{"stiffness":0.8,"gravityPower":0.05,"dragForce":0.4,"hitRadius":0.02},"ear":{"stiffness":3.0,"gravityPower":0,"dragForce":0.6,"hitRadius":0.01}}}

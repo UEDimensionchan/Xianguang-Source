@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>动作烘焙工具</title>
+<script type="importmap">
+{ "imports": { "three": "../vendor/three/three.module.js", "three/addons/": "../vendor/three/addons/" } }
+</script>
+<style>body{font:14px system-ui;padding:24px;max-width:720px} pre{white-space:pre-wrap;background:#f4f4f8;padding:12px;border-radius:8px}</style>
+</head>
+<body>
+<h2>动作烘焙工具</h2>
+<p>把 Quaternius 动作包转成 VRM 角色通用的动作数据。点按钮后会下载 <code>ual_vrm.json</code>，放到 <code>Asset/Animation/</code> 覆盖原文件即可。</p>
+<button id="go">开始烘焙</button>
+<pre id="log"></pre>
+<script type="module">
+import { bake } from './bake.js';
+const log = (t) => (document.getElementById('log').textContent += t + '\n');
+window.__bake = () => bake('../Asset/Animation/Quaternius/UAL1_Standard.glb', '../Asset/Animation/Quaternius/UAL1_Standard_RM.glb');
+document.getElementById('go').onclick = async () => {
+  log('烘焙中…');
+  const data = await window.__bake();
+  log(JSON.stringify({ diag: data.diag, speeds: data.speeds, clips: Object.keys(data.clips) }, null, 1));
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ual_vrm.json';
+  a.click();
+};
+</script>
+</body>
+</html>

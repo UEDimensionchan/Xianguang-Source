@@ -1,0 +1,29 @@
+# Dependencies and generated output
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+dist/
+build/
+coverage/
+.cache/
+
+# Local secrets and machine-specific settings
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Logs and editor / operating system files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vs/
+.idea/

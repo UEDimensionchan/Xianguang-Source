@@ -1,0 +1,311 @@
+/* 游戏内 HUD —— 按「弦光 · 游戏内 UI」模板（1672×941 设计稿）：
+   半透明深灰面板、白字，薄荷色 = 我方 / 生命，珊瑚色 = 敌方 / 危险，橙色 = 技能激活 */
+#hud {
+  --u: min(calc(100vw / 1672), calc(100vh / 941)); /* 设计稿 1 像素 */
+  --mint: #33e6c8;
+  --mint-d: #17b39b;
+  --coral: #ff6464;
+  --orange: #ff9b2f;
+  --panel: rgba(22, 27, 34, 0.66);
+  --panel-2: rgba(22, 27, 34, 0.84);
+  --line: rgba(255, 255, 255, 0.10);
+  --txt: #f4f7fa;
+  --dim: rgba(244, 247, 250, 0.55);
+  --num: "Bahnschrift", "DIN Alternate", "Roboto Condensed", "Segoe UI", sans-serif;
+  font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", sans-serif;
+  color: var(--txt);
+  font-size: calc(var(--u) * 14);
+}
+#hud b, #hud .num { font-family: var(--num); font-weight: 700; font-variant-numeric: tabular-nums; }
+#hud .panel-ui {
+  position: absolute;
+  background: linear-gradient(135deg, var(--panel-2), var(--panel) 60%);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--u) * 10);
+  backdrop-filter: blur(3px);
+}
+
+/* —— 小地图 —— */
+#minimap { left: calc(var(--u) * 28); top: calc(var(--u) * 24); width: calc(var(--u) * 245); height: calc(var(--u) * 268); padding: calc(var(--u) * 6); }
+#minimap canvas { width: 100%; height: calc(var(--u) * 232); border-radius: calc(var(--u) * 8); display: block; }
+#minimap .map-name { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 6); text-align: center; font-size: calc(var(--u) * 13); letter-spacing: 1px; color: var(--txt);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .6); }
+
+/* —— 顶部对局信息 —— */
+#match { position: absolute; left: 50%; top: calc(var(--u) * 20); transform: translateX(-50%); display: grid;
+  grid-template-columns: auto auto auto auto auto; grid-template-rows: auto auto; align-items: center; column-gap: calc(var(--u) * 6); }
+#match .side { display: flex; gap: calc(var(--u) * 8); }
+#match .side.ally { justify-content: flex-end; }
+#match .face { width: calc(var(--u) * 46); height: calc(var(--u) * 46); border-radius: calc(var(--u) * 6); overflow: hidden; position: relative;
+  background: var(--panel-2); border: 1px solid var(--line); }
+#match .face img, #match .face svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+#match .ally .face { box-shadow: inset 0 calc(var(--u) * -4) 0 var(--mint); }
+#match .enemy .face { background: rgba(120, 40, 44, .55); box-shadow: inset 0 calc(var(--u) * -4) 0 var(--coral); }
+#match .face.dead { opacity: .35; filter: grayscale(1); box-shadow: none; }
+#match .score { height: calc(var(--u) * 46); min-width: calc(var(--u) * 92); display: flex; align-items: center; justify-content: center; font-size: calc(var(--u) * 30); }
+#match .score.ally { color: var(--mint); background: linear-gradient(90deg, rgba(16, 44, 44, .7), rgba(18, 84, 76, .92)); clip-path: polygon(8% 0, 100% 0, 88% 100%, 0 100%); }
+#match .score.enemy { color: var(--coral); background: linear-gradient(90deg, rgba(92, 30, 34, .92), rgba(48, 22, 26, .7)); clip-path: polygon(12% 0, 100% 0, 92% 100%, 0 100%); }
+#match .clock { height: calc(var(--u) * 46); min-width: calc(var(--u) * 120); display: flex; align-items: center; justify-content: center;
+  background: var(--panel-2); font-size: calc(var(--u) * 24); }
+#match .mode { grid-column: 1 / -1; justify-self: center; margin-top: calc(var(--u) * 5); padding: calc(var(--u) * 2) calc(var(--u) * 14); font-size: calc(var(--u) * 13); color: var(--txt);
+  background: linear-gradient(90deg, transparent, var(--panel-2) 20% 80%, transparent); }
+
+/* —— 网络状态 —— */
+#net { position: absolute; right: calc(var(--u) * 26); top: calc(var(--u) * 28); display: flex; align-items: flex-end; gap: 2px; font-size: calc(var(--u) * 14); }
+#net i { width: calc(var(--u) * 3); background: var(--mint); border-radius: 1px; }
+#net i:nth-child(1) { height: calc(var(--u) * 5); } #net i:nth-child(2) { height: calc(var(--u) * 8); }
+#net i:nth-child(3) { height: calc(var(--u) * 11); } #net i:nth-child(4) { height: calc(var(--u) * 14); }
+#net.mid i:nth-child(4) { background: rgba(255, 255, 255, .25); }
+#net.bad i:nth-child(n+3) { background: rgba(255, 255, 255, .25); } #net.bad i { background: var(--coral); }
+#net span { margin-left: calc(var(--u) * 6); font-family: var(--num); }
+
+/* —— 击杀播报 —— */
+#killfeed { position: absolute; right: calc(var(--u) * 26); top: calc(var(--u) * 84); display: flex; flex-direction: column; gap: calc(var(--u) * 6); align-items: flex-end; }
+.kf { display: flex; align-items: center; height: calc(var(--u) * 36); padding-right: calc(var(--u) * 10); gap: calc(var(--u) * 8);
+  background: linear-gradient(90deg, rgba(22, 27, 34, .35), var(--panel-2)); border-radius: calc(var(--u) * 4); transition: opacity .4s, transform .4s; }
+.kf .face { width: calc(var(--u) * 36); height: calc(var(--u) * 36); border-radius: calc(var(--u) * 4); overflow: hidden; background: var(--panel-2); }
+.kf .face img, .kf .face svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.kf .face.enemy { background: rgba(120, 40, 44, .6); }
+.kf .who { font-size: calc(var(--u) * 15); color: var(--mint); max-width: calc(var(--u) * 120); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kf .vic { font-size: calc(var(--u) * 15); color: var(--coral); }
+.kf .gun { height: calc(var(--u) * 22); width: calc(var(--u) * 64); object-fit: contain; }
+.kf .hs { width: calc(var(--u) * 16); height: calc(var(--u) * 16); fill: var(--orange); color: var(--orange); }
+.kf.out { opacity: 0; transform: translateX(calc(var(--u) * 30)); }
+#notice { position: absolute; left: 50%; top: calc(var(--u) * 140); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 6); }
+.note { padding: calc(var(--u) * 6) calc(var(--u) * 18); font-size: calc(var(--u) * 14); background: var(--panel-2); border-left: 3px solid var(--mint);
+  border-radius: calc(var(--u) * 4); transition: opacity .5s; }
+.note.bad { border-left-color: var(--coral); }
+.note.out { opacity: 0; }
+
+/* —— 准星 —— */
+#crosshair { --spread: 6px; position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+#crosshair i { position: absolute; background: var(--xh, #fff); box-shadow: 0 0 0 1px rgba(0, 0, 0, .45); border-radius: 1px; }
+#crosshair i:nth-child(1) { width: 2px; height: calc(var(--u) * 12); left: -1px; bottom: var(--spread); }
+#crosshair i:nth-child(2) { width: 2px; height: calc(var(--u) * 12); left: -1px; top: var(--spread); }
+#crosshair i:nth-child(3) { width: calc(var(--u) * 12); height: 2px; top: -1px; right: var(--spread); }
+#crosshair i:nth-child(4) { width: calc(var(--u) * 12); height: 2px; top: -1px; left: var(--spread); }
+/* 命中反馈：四条斜线从准星往外弹出，爆头橙色，击破珊瑚色并且更大 */
+#hitmarker { position: absolute; left: 50%; top: 50%; width: 0; height: 0; opacity: 0; --hs: 1; }
+#hitmarker i { position: absolute; left: -1.5px; top: 0; width: 3px; height: calc(var(--u) * 17); background: #fff; border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .55); transform-origin: 50% 0; }
+#hitmarker i:nth-child(1) { transform: rotate(45deg) translateY(calc(var(--u) * 9 * var(--hs))); }
+#hitmarker i:nth-child(2) { transform: rotate(135deg) translateY(calc(var(--u) * 9 * var(--hs))); }
+#hitmarker i:nth-child(3) { transform: rotate(225deg) translateY(calc(var(--u) * 9 * var(--hs))); }
+#hitmarker i:nth-child(4) { transform: rotate(315deg) translateY(calc(var(--u) * 9 * var(--hs))); }
+#hitmarker.head i { background: var(--orange); height: calc(var(--u) * 20); }
+#hitmarker.kill i { background: var(--coral); width: 4px; left: -2px; height: calc(var(--u) * 26); }
+#crosshair.hit i { background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .55), 0 0 6px rgba(255, 255, 255, .9); }
+#crosshair.kill i { background: var(--coral); }
+
+/* 敌人头顶的菱形标记 */
+#markers { position: absolute; inset: 0; }
+.mk { position: absolute; left: 0; top: 0; width: calc(var(--u) * 12); height: calc(var(--u) * 12); margin: calc(var(--u) * -6) 0 0 calc(var(--u) * -6);
+  background: var(--coral); transform-origin: center; border: 1.5px solid rgba(255, 255, 255, .85); box-shadow: 0 0 6px rgba(255, 80, 80, .7); }
+
+/* 伤害数字 */
+#float-layer { position: absolute; inset: 0; }
+.dmg { position: absolute; left: 0; top: 0; font: 700 calc(var(--u) * 20) var(--num); color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
+.dmg.head { color: var(--orange); font-size: calc(var(--u) * 26); }
+
+/* —— 左下：生命 / 能量 —— */
+#vitals { left: calc(var(--u) * 24); bottom: calc(var(--u) * 24); width: calc(var(--u) * 400); height: calc(var(--u) * 116); display: flex; align-items: center;
+  padding: 0 calc(var(--u) * 14) 0 calc(var(--u) * 10); gap: calc(var(--u) * 12); background: linear-gradient(90deg, var(--panel-2), rgba(22, 27, 34, .25)); }
+#vitals .face { width: calc(var(--u) * 92); height: calc(var(--u) * 92); border-radius: calc(var(--u) * 8); overflow: hidden; flex: none;
+  background: radial-gradient(circle at 50% 30%, rgba(51, 230, 200, .35), rgba(22, 27, 34, .9)); border: 1px solid var(--line); }
+#vitals .face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#vitals .info { flex: 1; min-width: 0; }
+#vitals .name { font-size: calc(var(--u) * 16); margin-bottom: calc(var(--u) * 4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#vitals .hp-row, #vitals .sh-row { display: flex; align-items: center; gap: calc(var(--u) * 8); }
+#vitals .hp-row b { font-size: calc(var(--u) * 30); min-width: calc(var(--u) * 58); line-height: 1.1; }
+#vitals .sh-row b { font-size: calc(var(--u) * 20); min-width: calc(var(--u) * 58); }
+#vitals .plus { width: calc(var(--u) * 20); height: calc(var(--u) * 20); flex: none;
+  background: linear-gradient(var(--mint), var(--mint)) center / 100% 28% no-repeat, linear-gradient(var(--mint), var(--mint)) center / 28% 100% no-repeat; }
+#vitals .shield { width: calc(var(--u) * 18); height: calc(var(--u) * 20); flex: none; background: #fff;
+  clip-path: polygon(50% 0, 100% 16%, 100% 52%, 50% 100%, 0 52%, 0 16%); }
+#vitals .vbar { flex: 1; height: calc(var(--u) * 10); background: rgba(255, 255, 255, .12); border-radius: 2px; overflow: hidden; }
+#vitals .vbar.thin { height: calc(var(--u) * 5); }
+#hp-fill { height: 100%; width: 100%; background: var(--mint); box-shadow: 0 0 10px rgba(51, 230, 200, .6); transition: width .15s; }
+#hp-fill.low { background: var(--coral); box-shadow: 0 0 10px rgba(255, 100, 100, .6); }
+#energy-fill { height: 100%; width: 100%; background: #fff; transition: width .1s; }
+#vitals.hurt .plus { background: linear-gradient(var(--coral), var(--coral)) center / 100% 28% no-repeat, linear-gradient(var(--coral), var(--coral)) center / 28% 100% no-repeat; }
+
+/* —— 底部中间：技能 —— */
+#skills { position: absolute; left: 50%; bottom: calc(var(--u) * 26); transform: translateX(-50%); display: flex; gap: calc(var(--u) * 26); }
+.skill { --cd: 0; display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 8); }
+.skill .pad { position: relative; width: calc(var(--u) * 86); height: calc(var(--u) * 86); border-radius: calc(var(--u) * 12); overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, rgba(60, 70, 80, .75), rgba(22, 27, 34, .85)); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center; }
+.skill .pad::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--cd) * 100%); background: rgba(10, 12, 16, .55); }
+.skill .ic { width: 62%; height: 62%; fill: var(--mint); stroke: none; filter: drop-shadow(0 0 6px rgba(51, 230, 200, .55)); position: relative; z-index: 1; }
+.skill .ic .sp { fill: none; stroke: rgba(10, 30, 30, .7); stroke-width: 2.2; stroke-linecap: round; }
+.skill#skill-q .ic .sp { stroke: var(--mint); }
+.skill .ic .hl { fill: rgba(255, 255, 255, .55); }
+.skill:not(.ready) .ic { fill: rgba(255, 255, 255, .55); filter: none; opacity: .35; }
+.skill .cd { position: absolute; z-index: 2; font: 700 calc(var(--u) * 30) var(--num); color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
+.skill kbd { display: inline-flex; align-items: center; justify-content: center; min-width: calc(var(--u) * 26); height: calc(var(--u) * 26); margin: 0; padding: 0 4px;
+  background: rgba(255, 255, 255, .92); color: #20262e; border: none; border-radius: calc(var(--u) * 4); font: 700 calc(var(--u) * 14) var(--num); }
+.skill label { display: none; }
+/* 纸化：下方白色是剩余能量；按住时变成橙色激活状态 */
+.skill.paper .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; background: linear-gradient(0deg, rgba(51, 230, 200, .28), rgba(51, 230, 200, .05)); }
+.skill.paper .state { position: absolute; z-index: 2; bottom: calc(var(--u) * 5); left: 0; right: 0; text-align: center; font-size: calc(var(--u) * 12); color: var(--txt); }
+.skill.paper.active .pad { background: radial-gradient(circle at 50% 40%, #ffb35c, #e87a10); border-color: #ffd29a; box-shadow: 0 0 calc(var(--u) * 14) rgba(255, 155, 47, .8); }
+.skill.paper.active .ic { fill: #fff; filter: drop-shadow(0 0 4px rgba(120, 50, 0, .6)); opacity: 1; }
+.skill.paper.active .fill { background: linear-gradient(0deg, rgba(255, 255, 255, .35), rgba(255, 255, 255, .05)); }
+.skill.paper.active .state { color: #3a1d00; font-weight: 700; }
+.skill.paper.empty .ic { opacity: .25; }
+
+/* —— 右下：武器槽 —— */
+#slots { position: absolute; right: calc(var(--u) * 24); bottom: calc(var(--u) * 146); display: flex; flex-direction: column; gap: calc(var(--u) * 3); align-items: flex-end; }
+.slot { display: flex; align-items: center; gap: calc(var(--u) * 8); height: calc(var(--u) * 28); opacity: .55; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .6)); transition: opacity .15s; }
+.slot img { height: calc(var(--u) * 24); width: calc(var(--u) * 92); object-fit: contain; }
+.slot .k { width: calc(var(--u) * 22); height: calc(var(--u) * 22); display: flex; align-items: center; justify-content: center;
+  border-left: 2px solid rgba(255, 255, 255, .6); font: 700 calc(var(--u) * 14) var(--num); }
+.slot.on { opacity: 1; }
+.slot.on .k { border-left-color: var(--mint); color: var(--mint); }
+.slot.on img { filter: drop-shadow(0 0 4px rgba(255, 255, 255, .5)); }
+
+/* —— 右下：弹药 —— */
+#ammo-box { right: calc(var(--u) * 24); bottom: calc(var(--u) * 24); width: calc(var(--u) * 204); height: calc(var(--u) * 108); padding: calc(var(--u) * 10) calc(var(--u) * 18);
+  background: linear-gradient(270deg, var(--panel-2), rgba(22, 27, 34, .25)); text-align: right; }
+#ammo-box .wname { font-size: calc(var(--u) * 14); color: var(--txt); white-space: nowrap; }
+#ammo-box .wname.flash { animation: wflash .35s ease-out; }
+@keyframes wflash { from { color: var(--mint); transform: translateX(calc(var(--u) * -6)); } to { color: var(--txt); transform: none; } }
+#ammo-box .row { display: flex; align-items: baseline; justify-content: flex-end; gap: calc(var(--u) * 6); margin-top: calc(var(--u) * 6); }
+#ammo-box .row b { font-size: calc(var(--u) * 46); line-height: 1; }
+#ammo-box .row b.low { color: var(--coral); }
+#ammo-box .sep, #ammo-box #ammo-max { font-family: var(--num); font-size: calc(var(--u) * 22); color: var(--dim); }
+#ammo-box .bullets { display: flex; gap: 3px; margin-right: calc(var(--u) * 6); align-self: center; }
+#ammo-box .bullets i { width: calc(var(--u) * 7); height: calc(var(--u) * 24); background: rgba(255, 255, 255, .85); border-radius: calc(var(--u) * 4) calc(var(--u) * 4) 1px 1px; }
+#reload { position: absolute; left: calc(var(--u) * 16); bottom: calc(var(--u) * 10); font-size: calc(var(--u) * 13); color: var(--orange); opacity: 0; }
+
+/* —— 火箭筒测距仪（第一人称右键瞄准）：蓝色全息圆环 + 向外扩散的波纹 + 距离读数 —— */
+#rangefinder { --rf: #4cc9ff; --rf2: #9fe6ff; position: absolute; left: 50%; top: 50%; width: calc(var(--u) * 400); height: calc(var(--u) * 400);
+  transform: translate(-50%, -50%) scale(.92); opacity: 0; transition: opacity .15s, transform .2s; }
+#rangefinder.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+#rangefinder.lock { --rf: #ff7a6b; --rf2: #ffb3a8; }
+.rf-svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 4px rgba(76, 201, 255, .55)); }
+#rangefinder.lock .rf-svg { filter: drop-shadow(0 0 5px rgba(255, 100, 90, .7)); }
+.rf-svg .ring { fill: none; stroke: var(--rf); stroke-opacity: .55; stroke-width: 1.5; }
+.rf-svg .arc { fill: none; stroke: var(--rf2); stroke-width: 3; stroke-linecap: round; }
+.rf-svg .spin { animation: rfspin 6s linear infinite; transform-origin: 0 0; }
+.rf-svg .ticks line { stroke: var(--rf); stroke-opacity: .7; stroke-width: 1.5; }
+.rf-svg .ticks line.big { stroke-width: 2.5; stroke-opacity: .95; }
+.rf-svg .brk path { fill: none; stroke: var(--rf2); stroke-width: 2.5; }
+.rf-svg .dot { fill: none; stroke: var(--rf2); stroke-width: 2; }
+.rf-svg .cross { stroke: var(--rf2); stroke-width: 2; stroke-linecap: round; }
+.rf-svg .ripples circle { fill: none; stroke: var(--rf); stroke-width: 2; opacity: 0; animation: rfripple 2.4s ease-out infinite; transform-origin: 0 0; }
+.rf-svg .ripples circle:nth-child(2) { animation-delay: .8s; }
+.rf-svg .ripples circle:nth-child(3) { animation-delay: 1.6s; }
+#rangefinder.lock .ripples circle { animation-duration: 1.2s; }
+#rangefinder.lock .brk { animation: rfpulse .5s ease-in-out infinite alternate; transform-origin: 0 0; }
+@keyframes rfspin { to { transform: rotate(360deg); } }
+@keyframes rfripple { 0% { transform: scale(.6); opacity: .9; stroke-width: 3; } 100% { transform: scale(5.2); opacity: 0; stroke-width: .5; } }
+@keyframes rfpulse { from { transform: scale(1); } to { transform: scale(.82); } }
+.rf-range, .rf-info { position: absolute; top: 50%; white-space: nowrap; color: var(--rf2); text-shadow: 0 0 6px rgba(76, 201, 255, .7), 0 1px 2px rgba(0, 12, 30, .9); display: flex; flex-direction: column; }
+#rangefinder.lock .rf-range, #rangefinder.lock .rf-info { text-shadow: 0 0 6px rgba(255, 100, 90, .7); }
+.rf-range { left: calc(100% + var(--u) * 10); transform: translateY(-60%); }
+.rf-range b { font-size: calc(var(--u) * 38); line-height: 1; letter-spacing: 1px; }
+.rf-range .unit { font-size: calc(var(--u) * 14); opacity: .8; }
+.rf-info { right: calc(100% + var(--u) * 10); transform: translateY(-50%); text-align: right; gap: calc(var(--u) * 2); }
+.rf-info b { font-size: calc(var(--u) * 18); margin-bottom: calc(var(--u) * 6); }
+#rangefinder .lbl { font-size: calc(var(--u) * 11); letter-spacing: 1px; opacity: .75; }
+.rf-ladder { position: absolute; left: calc(100% + var(--u) * 4); top: 15%; height: 70%; width: calc(var(--u) * 4);
+  background: repeating-linear-gradient(0deg, var(--rf) 0 2px, transparent 2px 10%); opacity: .7; }
+.rf-ladder i { position: absolute; left: calc(var(--u) * -6); width: calc(var(--u) * 14); height: 3px; background: var(--rf2); box-shadow: 0 0 6px var(--rf); transition: top .1s; }
+.rf-lock { position: absolute; left: 50%; top: calc(100% - var(--u) * 50); transform: translateX(-50%); padding: calc(var(--u) * 3) calc(var(--u) * 14);
+  font-size: calc(var(--u) * 14); letter-spacing: 3px; color: #fff; background: rgba(255, 100, 90, .55); border: 1px solid #ffb3a8; opacity: 0; }
+#rangefinder.lock .rf-lock { opacity: 1; }
+
+/* —— 第一人称瞄准准心圈：薄荷色圆环 + 中心红点，开枪时跟着准星一起撑开 —— */
+#reticle { position: absolute; left: 50%; top: 50%; width: calc(var(--u) * 120); height: calc(var(--u) * 120); transform: translate(-50%, -50%) scale(var(--rs, 1));
+  opacity: 0; transition: opacity .12s; filter: drop-shadow(0 0 3px rgba(0, 0, 0, .6)); }
+#reticle.on { opacity: 1; }
+#reticle svg { width: 100%; height: 100%; overflow: visible; }
+#reticle .dot { fill: #ff4d5e; filter: drop-shadow(0 0 3px #ff4d5e); } /* 机枪开镜只留中间的红点 */
+
+/* —— 竞技：队友 / 敌人头顶标记 —— */
+.tm { position: absolute; left: 0; top: 0; display: none; transform-origin: 0 0; pointer-events: none; }
+.tm span { position: absolute; left: 0; bottom: calc(var(--u) * 14); transform: translateX(-50%); white-space: nowrap; font-size: calc(var(--u) * 14); font-weight: 700;
+  color: #dffcf6; text-shadow: 0 1px 2px rgba(0, 0, 0, .8), 0 0 6px rgba(0, 0, 0, .5); letter-spacing: 1px; }
+.tm i { position: absolute; left: calc(var(--u) * -7); top: calc(var(--u) * -10); width: 0; height: 0;
+  border-left: calc(var(--u) * 7) solid transparent; border-right: calc(var(--u) * 7) solid transparent; border-top: calc(var(--u) * 10) solid var(--mint);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .6)); }
+.tm.enemy i { border-top-color: var(--coral); }
+/* 击杀播报：敌方名字红色，我方薄荷色；和自己有关的那条加亮 */
+.kf .who.enemy, .kf .vic.enemy { color: var(--coral); }
+.kf .who.ally, .kf .vic.ally { color: var(--mint); }
+.kf.me { background: linear-gradient(90deg, rgba(255, 255, 255, .0), rgba(255, 255, 255, .16)); }
+
+/* —— 竞技：按住 Tab 的比分板 —— */
+#scoreboard { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.97); width: calc(var(--u) * 980); padding: calc(var(--u) * 22) calc(var(--u) * 28) calc(var(--u) * 26);
+  background: rgba(16, 22, 30, .82); border: 1px solid rgba(255, 255, 255, .12); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; }
+#scoreboard.on { opacity: 1; transform: translate(-50%, -50%); }
+.sb-head { display: flex; align-items: center; justify-content: center; gap: calc(var(--u) * 26); margin-bottom: calc(var(--u) * 16); }
+.sb-head span { font: 600 calc(var(--u) * 44) var(--num); }
+.sb-head .a { color: var(--mint); } .sb-head .e { color: var(--coral); }
+.sb-head em { font-style: normal; font-size: calc(var(--u) * 14); color: var(--txt); letter-spacing: 2px; }
+.sb-body { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 20); }
+.sb-t { width: 100%; border-collapse: collapse; color: #e8eef3; font-size: calc(var(--u) * 15); }
+.sb-t th { text-align: left; font-weight: 600; font-size: calc(var(--u) * 13); color: rgba(232, 238, 243, .6); padding: 0 calc(var(--u) * 8) calc(var(--u) * 8); border-bottom: 2px solid var(--mint); }
+.sb-t.enemy th { border-bottom-color: var(--coral); }
+.sb-t th:not(:first-child), .sb-t td:not(:first-child) { text-align: center; width: 18%; font-family: var(--num); font-variant-numeric: tabular-nums; }
+.sb-t td { padding: calc(var(--u) * 6) calc(var(--u) * 8); border-bottom: 1px solid rgba(255, 255, 255, .07); }
+.sb-t td:first-child { display: flex; align-items: center; gap: calc(var(--u) * 10); }
+.sb-t .f { width: calc(var(--u) * 32); height: calc(var(--u) * 32); border-radius: calc(var(--u) * 4); overflow: hidden; background: rgba(255, 255, 255, .08); flex: none; }
+.sb-t .f img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sb-t tr.me td { background: rgba(51, 230, 200, .14); }
+.sb-t tr.me b { color: var(--mint); }
+
+/* 进入战斗后还没锁定鼠标：提示点一下屏幕 */
+#click-hint { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); display: none; flex-direction: column; align-items: center; gap: calc(var(--u) * 6);
+  padding: calc(var(--u) * 14) calc(var(--u) * 34); background: rgba(16, 22, 30, .72); border-top: 3px solid var(--mint); color: #e8eef3; pointer-events: none;
+  animation: chPulse 1.6s ease-in-out infinite; }
+#click-hint.on { display: flex; }
+#click-hint b { font-size: calc(var(--u) * 22); letter-spacing: 3px; }
+#click-hint span { font-size: calc(var(--u) * 13); color: rgba(232, 238, 243, .7); }
+@keyframes chPulse { 50% { box-shadow: 0 0 0 calc(var(--u) * 6) rgba(51, 230, 200, .15); } }
+
+/* 战斗中隐藏鼠标指针（菜单、结算等界面弹出时 body 去掉这个类，指针会回来） */
+body.no-cursor, body.no-cursor * { cursor: none !important; }
+
+/* —— 火箭筒锁定框：四个角从外往里收紧，锁定后变成珊瑚红并显示“锁定” —— */
+#lockbox { position: absolute; left: 0; top: 0; width: 0; height: 0; display: none; pointer-events: none; --s: 2; --c: var(--mint); }
+#lockbox.on { display: block; }
+#lockbox.locked { --c: var(--coral); }
+#lockbox i { position: absolute; width: calc(var(--u) * 14); height: calc(var(--u) * 14); border: 2px solid var(--c); filter: drop-shadow(0 0 3px rgba(0, 0, 0, .55));
+  transition: left .08s linear, top .08s linear; }
+#lockbox i:nth-child(1) { left: calc(var(--u) * -30 * var(--s)); top: calc(var(--u) * -30 * var(--s)); border-right: 0; border-bottom: 0; }
+#lockbox i:nth-child(2) { left: calc(var(--u) * 30 * var(--s) - var(--u) * 14); top: calc(var(--u) * -30 * var(--s)); border-left: 0; border-bottom: 0; }
+#lockbox i:nth-child(3) { left: calc(var(--u) * -30 * var(--s)); top: calc(var(--u) * 30 * var(--s) - var(--u) * 14); border-right: 0; border-top: 0; }
+#lockbox i:nth-child(4) { left: calc(var(--u) * 30 * var(--s) - var(--u) * 14); top: calc(var(--u) * 30 * var(--s) - var(--u) * 14); border-left: 0; border-top: 0; }
+#lockbox span { position: absolute; left: 0; top: calc(var(--u) * 34 * var(--s)); transform: translateX(-50%); white-space: nowrap;
+  font: 700 calc(var(--u) * 13) "Bahnschrift", sans-serif; letter-spacing: .12em; color: var(--c); text-shadow: 0 1px 3px rgba(0, 0, 0, .7); }
+#lockbox.locked i { animation: lockPulse .3s ease-in-out infinite alternate; }
+@keyframes lockPulse { to { opacity: .45; } }
+
+/* 换弹进度圆弧（准心右侧） */
+#reload-arc { position: absolute; left: 50%; top: 50%; width: calc(var(--u) * 100); height: calc(var(--u) * 100); transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity .15s; }
+#reload-arc.on { opacity: 1; }
+#reload-arc svg { width: 100%; height: 100%; overflow: visible; }
+#reload-arc path { fill: none; stroke-linecap: round; }
+#reload-arc .bg { stroke: rgba(10, 20, 26, .35); stroke-width: 4.5; }
+#reload-arc .fg { stroke: #fff; stroke-width: 3; stroke-dasharray: 100 100; stroke-dashoffset: 100; filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, .55)); }
+#reload-arc .tip { fill: #fff; filter: drop-shadow(0 0 3px rgba(80, 255, 220, .9)); }
+#reload-arc.done { animation: reloadDone .9s ease-out forwards; }
+#reload-arc.done .fg { stroke: #4dffe0; filter: drop-shadow(0 0 4px rgba(77, 255, 224, .9)); }
+#reload-arc.done .tip { opacity: 0; }
+@keyframes reloadDone { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 30% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.12); } }
+
+/* 冲刺体力条：橙色；第三人称竖着（从下往上是满），第一人称在准心下方横着；耗尽变红，恢复满后慢慢淡出 */
+#stamina { position: absolute; left: 0; top: 0; width: calc(var(--u) * 7); height: calc(var(--u) * 64); margin: calc(var(--u) * -32) 0 0 calc(var(--u) * -3.5);
+  border-radius: 4px; background: rgba(10, 16, 22, .45); box-shadow: 0 0 0 1px rgba(255, 255, 255, .22); overflow: hidden;
+  opacity: 0; transition: opacity .9s ease; pointer-events: none; will-change: transform; }
+#stamina.on { opacity: 1; transition: opacity .15s; }
+#stamina i { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; transform-origin: 50% 100%; border-radius: 4px;
+  background: linear-gradient(0deg, #ff8a1e, #ffc25a); box-shadow: 0 0 6px rgba(255, 150, 40, .8); }
+#stamina.fp { width: calc(var(--u) * 300); height: calc(var(--u) * 4); margin: calc(var(--u) * -2) 0 0 calc(var(--u) * -150); }
+#stamina.fp.on { opacity: .85; }
+#stamina.fp i { top: 0; bottom: 0; right: auto; width: 100%; height: auto; transform-origin: 0 50%; background: linear-gradient(90deg, #ff8a1e, #ffc25a); }
+#stamina.tired { box-shadow: 0 0 0 1px rgba(255, 70, 60, .9), 0 0 8px rgba(255, 60, 50, .7); background: rgba(90, 10, 10, .5); animation: stTired .8s ease-in-out infinite; }
+#stamina.tired i { background: #ff4a3d; box-shadow: 0 0 6px rgba(255, 60, 50, .9); }
+@keyframes stTired { 50% { box-shadow: 0 0 0 1px rgba(255, 70, 60, .5), 0 0 2px rgba(255, 60, 50, .3); } }
