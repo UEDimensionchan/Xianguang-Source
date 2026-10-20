@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { VRMUtils } from '@pixiv/three-vrm';
 import { attachAccessories } from './accessories.js';
 import { tameSprings } from './springs.js';
+import { addOutline } from './outline.js';
+import { preloadedJSON, whenLoaded } from './preload.js';
 // 引航者页的 3D 展示台：切换角色时播放出场动画（Blender 里 K 的，见 Character/_blender/展示动画.blend），
 // 配合传送特效（地面法阵、光柱、粒子、从脚往上“扫描成形”），之后循环播放该角色的待机动作。
 
@@ -12,7 +14,7 @@ const COLORS = {
 
 let showData = null;
 function loadShow(url) {
-  if (!showData) showData = fetch(url).then((r) => r.json());
+  if (!showData) showData = preloadedJSON(url).then((j) => j || fetch(url).then((r) => r.json()));
   return showData;
 }
 
@@ -71,9 +73,9 @@ export class NavStage {
     host.appendChild(r.domElement);
 
     const sc = (this.scene = new THREE.Scene());
-    sc.add(new THREE.HemisphereLight(0xf2f8ff, 0x9aa6b4, 1.5));
-    const key = new THREE.DirectionalLight(0xfff6ec, 2.1); key.position.set(1.2, 3, 3); sc.add(key);
-    this.rim = new THREE.DirectionalLight(0xbff8ff, 1.8); this.rim.position.set(-2.5, 2, -2.5); sc.add(this.rim);
+    sc.add(new THREE.HemisphereLight(0xf2f8ff, 0x9aa6b4, 0.85)); // 灯光压暗一点：之前皮肤、脸发白过曝
+    const key = new THREE.DirectionalLight(0xfff6ec, 1.9); key.position.set(1.4, 2.6, 3); sc.add(key);
+    this.rim = new THREE.DirectionalLight(0xbff8ff, 1.1); this.rim.position.set(-2.5, 2, -2.5); sc.add(this.rim);
     this.camera = new THREE.PerspectiveCamera(22, 0.7, 0.05, 50);
     this.pivot = new THREE.Group();
     sc.add(this.pivot);
@@ -155,6 +157,8 @@ export class NavStage {
     this.charKey = ch.file;
     const tok = ++this.token;
     this.host.classList.add('loading');
+    await whenLoaded(ch.file); // 启动预加载还没轮到它就等一下，不重复下载
+    if (tok !== this.token) return;
     const [gltf, data] = await Promise.all([this.loader.loadAsync(ch.file), this.data]);
     if (tok !== this.token) return;
     const vrm = gltf.userData.vrm;
@@ -172,6 +176,7 @@ export class NavStage {
     if (this.vrm) { this.pivot.remove(this.vrm.scene); VRMUtils.deepDispose(this.vrm.scene); }
     this.vrm = vrm; this.mats = mats;
     tameSprings(vrm);
+    this.outline = addOutline(vrm.scene, 0x3b2d3a); // 细描边：和立绘一样的二次元线条感
     this.pivot.add(vrm.scene);
     vrm.scene.updateMatrixWorld(true);
     const H = vrm.humanoid;
@@ -237,6 +242,7 @@ export class NavStage {
     // 成形裁剪：从脚往上
     for (const m of this.mats) { m.clippingPlanes = [this.clip]; m.needsUpdate = true; }
     this._clipping = true;
+    if (this.outline) this.outline.visible = false; // 描边在成形完再出现
     this.clip.constant = -0.02;
     // 粒子爆发
     for (let i = 0; i < 90; i++) this._spawn(true);
@@ -274,8 +280,8 @@ export class NavStage {
     if (!em) return;
     const f = this.fxT;
     // 出场时笑一下，之后保持一点点笑意；隔几秒眨眼
-    const happy = f < 3 ? Math.sin(Math.min(1, Math.max(0, (f - 0.6) / 2.2)) * Math.PI) * 0.7 : 0;
-    em.setValue('happy', Math.max(happy, 0.12));
+    const happy = f < 3 ? Math.sin(Math.min(1, Math.max(0, (f - 0.6) / 2.2)) * Math.PI) * 0.45 : 0;
+    em.setValue('happy', Math.max(happy, 0.06));
     this.blinkT -= dt;
     let blink = 0;
     if (this.blinkT < 0.16) blink = Math.sin(Math.max(0, this.blinkT) / 0.16 * Math.PI);
@@ -309,7 +315,7 @@ export class NavStage {
     const k = ease((f - 0.15) / 0.9);
     if (this._clipping) {
       this.clip.constant = -0.02 + k * (h + 0.35);
-      if (k >= 1) { for (const m of this.mats) { m.clippingPlanes = null; m.needsUpdate = true; } this._clipping = false; }
+      if (k >= 1) { for (const m of this.mats) { m.clippingPlanes = null; m.needsUpdate = true; } this._clipping = false; if (this.outline) this.outline.visible = true; }
     }
     const scanA = f < 0.15 ? 0 : Math.min(1, (1 - k) * 5);
     this.scan.position.y = this.clip.constant;

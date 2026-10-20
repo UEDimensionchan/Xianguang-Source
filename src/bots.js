@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { VRMUtils } from '@pixiv/three-vrm';
-import { Player, adsOf, heightScale } from './player.js';
+import { Player, adsOf, heightScale, OUTLINE_COLOR } from './player.js';
 import { settings } from './settings.js';
+import { whenLoaded } from './preload.js';
 import { CharacterAnimator } from './anim.js';
 import { WEAPONS } from './weapons.js';
 import { TUNING } from './config.js';
@@ -66,7 +67,7 @@ export function hitCharacter(ray, ch, maxDist) {
 // ———— 加载机器人用的角色模型：同一个文件只下载一次，每个机器人各自解析一份；贴图缩到 512 省显存 ————
 const bufCache = {};
 export async function loadBotVRM(loader, file) {
-  if (!bufCache[file]) bufCache[file] = fetch(file).then((r) => r.arrayBuffer());
+  if (!bufCache[file]) bufCache[file] = whenLoaded(file).then((b) => b || fetch(file).then((r) => r.arrayBuffer())); // 启动时预加载过就直接用
   const buf = await bufCache[file];
   const gltf = await loader.parseAsync(buf.slice(0), '');
   const vrm = gltf.userData.vrm;
@@ -185,7 +186,7 @@ export class Bot extends Player {
     tameSprings(vrm);
     this.pivot.add(vrm.scene);
     // 敌人加一圈红色描边，远处、暗处也好认
-    if (this.team === 'enemy') this.outline = addOutline(vrm.scene, 0xff2a3d);
+    this.outline = addOutline(vrm.scene, this.team === 'enemy' ? 0xff2a3d : OUTLINE_COLOR); // 队友 / 自己深色细描边
     this.bones = {};
     for (const n of ['hips', 'spine', 'chest', 'neck', 'head', 'leftUpperArm', 'rightUpperArm']) this.bones[n] = vrm.humanoid.getNormalizedBoneNode(n);
     this.hipsRestY = this.bones.hips.position.y;

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { clearAttachments } from './attachments.js';
+import { whenLoaded, preloadedJSON } from './preload.js';
 
 // 8 把枪的数值。模型来自 Infima Games 枪械包（tools/gunlab.html 从 FBX 组装导出）
 // hold = 持枪方式（rifle 枪托抵肩 / pistol 双手前伸 / launcher 扛在肩上）；stock = 握把到枪托末端的距离（米）
@@ -38,7 +39,7 @@ export class Arsenal {
 
   load(def) {
     if (!this.cache[def.id]) {
-      this.cache[def.id] = this.loader.loadAsync(def.file).then((gltf) => {
+      this.cache[def.id] = whenLoaded(def.file).then(() => this.loader.loadAsync(def.file)).then((gltf) => { // 启动预加载好了才解析，不重复下载
         const holder = new THREE.Group();
         holder.name = 'weapon_' + def.id;
         let muzzle = null, palmIK = false;
@@ -79,6 +80,9 @@ export class Arsenal {
     // 玩家的枪上可能装了配件：副本不要（AI 和大厅展示自己决定装什么）
     c.userData = { muzzle: (ud.muzzleBase || ud.muzzle).clone(), palmIK: ud.palmIK };
     clearAttachments(c); // 去掉配件，把被藏起来/挪过的原部件还原
+    // 玩家开着第一人称时，自己那把（就是这里的原模型）被换到了隐藏图层；复制品要还原成正常图层，
+    // 不然联机替身、AI 拿的同款枪会整把看不见（第一人称下“别人一开始的枪不显示”）
+    c.traverse((o) => { if (o.userData._mask !== undefined) { o.layers.mask = o.userData._mask; delete o.userData._mask; } });
     c.userData.ikL = c.getObjectByName('IK_LeftHand');
     c.userData.ikR = c.getObjectByName('IK_RightHand');
     c.position.set(0, 0, 0); c.quaternion.identity(); c.scale.setScalar(1); c.visible = true;
@@ -99,7 +103,7 @@ export class Arsenal {
   async _loadReload(def, holder, scene) {
     const url = def.file.replace('Weapon/Guns', 'Animation/Reload').replace(/\.glb(\.wasm)?$/, '.json');
     try {
-      const json = await (await fetch(url)).json();
+      const json = (await preloadedJSON(url)) || (await (await fetch(url)).json());
       const clip = THREE.AnimationClip.parse(json);
       const mixer = new THREE.AnimationMixer(scene);
       const action = mixer.clipAction(clip);

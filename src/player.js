@@ -7,6 +7,7 @@ import { applyAttachments, selFor, mountAttachments } from './attachments.js';
 import { registerCharacter, unregisterCharacter } from './charlight.js';
 import { solveArm, orientHand, wristForContact, curlFingers, CURL_RIGHT, CURL_LEFT, mixCurl } from './ik.js';
 import { tameSprings } from './springs.js';
+import { addOutline } from './outline.js';
 
 
 const P = TUNING.player;
@@ -38,6 +39,7 @@ function smoothTo(cur, target, dt, down, up) {
 
 // 身高统一：各模型原始身高差很多（最矮的头顶约 1.0 米、最高约 1.45 米），按比例往中间收拢，
 // 只保留 25% 的原始差距，矮的放大、高的稍微缩小；缩放放在 pivot 上（模型自身的缩放被纸化动画占用）
+export const OUTLINE_COLOR = 0x3b2d3a; // 角色描边颜色（敌人是红色）
 const HEIGHT_TARGET = 1.34, HEIGHT_KEEP = 0.25;
 export function heightScale(vrm) {
   vrm.scene.updateMatrixWorld(true);
@@ -117,6 +119,8 @@ export class Player {
     // 头上的配件（发卡、耳坠、内层发色）同样只在第三人称显示
     const tpl = vrm.firstPerson?.thirdPersonOnlyLayer;
     if (tpl != null) vrm.scene.traverse((o) => { if (o.userData.fpHide) o.layers.set(tpl); });
+    // 细描边（和大厅展示、立绘一样的线条感）；放在第一人称图层设置之后，描边跟着原网格的图层走
+    this.outline = addOutline(vrm.scene, OUTLINE_COLOR);
     this._eye = null;
     this.bones = {};
     for (const n of ['hips', 'spine', 'chest', 'neck', 'head', 'leftUpperLeg', 'rightUpperLeg', 'leftLowerLeg', 'rightLowerLeg',

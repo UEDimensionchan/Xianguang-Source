@@ -38,10 +38,20 @@ import { net } from './net.js';
 import { Multiplayer } from './mp.js';
 import { loadAnimData } from './anim.js';
 import { Arsenal, WEAPONS, weaponSoundMap } from './weapons.js';
+import { preloadAll, whenLoaded } from './preload.js';
 
 const params = new URLSearchParams(location.search);
 const TEST = params.has('test');
-if (!TEST && !params.has('nointro') && document.getElementById('intro')) playIntro(); // 启动动画，播完点左键进大厅
+// 启动动画播完 → 海报（Asset/UI/poster.jpg）+ 右下角加载进度：把所有角色、枪、动作数据先下载进内存，全部好了再进大厅
+const BOOT = !TEST && !params.has('nointro') && !params.has('noboot');
+let bootEl = null;
+if (BOOT) {
+  bootEl = document.createElement('div');
+  bootEl.id = 'boot';
+  bootEl.innerHTML = `<img class="bt-poster" src="Asset/UI/poster.jpg" alt=""><div class="bt-load"><div class="bt-row"><b>正在加载资源</b><small class="bt-sub2"></small><span class="bt-pct">0%</span></div><div class="bt-bar"><i></i></div><div class="bt-sub"></div></div>`;
+  document.body.appendChild(bootEl);
+}
+const introDone = (!TEST && !params.has('nointro') && document.getElementById('intro')) ? playIntro() : Promise.resolve(); // 启动动画，播完自动进入海报
 
 // ———————————— 渲染基础 ————————————
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -657,6 +667,31 @@ function step(dt) {
 // ———————————— 开始界面 ————————————
 let selected = CHARACTERS.find((c) => c.id === 'kikyo') || CHARACTERS[0]; // 默认：桔梗（澪）
 let pendingRoom = null; // 组队联机：正在进入的房间
+
+// —— 启动预加载 ——（顺序：上次出战的角色 → 动作数据 → 枪 → 其余角色）
+const preloadDone = (() => {
+  let last = null;
+  try { last = JSON.parse(sessionStorage.getItem('prismlink.return') || 'null')?.nav; } catch (e) { /* 忽略 */ }
+  const first = CHARACTERS.find((c) => c.id === last) || selected;
+  const chars = [first, ...CHARACTERS.filter((c) => c !== first)];
+  const urls = [first.file, first.acc, ASSETS.anim, ASSETS.navShow,
+    ...WEAPONS.map((w) => w.file), ...WEAPONS.map((w) => w.file.replace('Weapon/Guns', 'Animation/Reload').replace(/\.glb(\.wasm)?$/, '.json')),
+    ...chars.flatMap((c) => [c.file, c.acc])];
+  if (!BOOT) return preloadAll(urls, null, 3); // 测试模式：后台慢慢下载，不挡界面
+  const pct = bootEl.querySelector('.bt-pct'), bar = bootEl.querySelector('.bt-bar i'), sub = bootEl.querySelector('.bt-sub2');
+  const MB = (b) => (b / 1048576).toFixed(0);
+  return preloadAll(urls, (have, total, n, all) => {
+    const k = Math.min(1, total ? have / total : 0);
+    pct.textContent = Math.floor(k * 100) + '%';
+    bar.style.width = (k * 100).toFixed(1) + '%';
+    sub.textContent = `${MB(have)} / ${MB(total)} MB`;
+  });
+})();
+// 资源和启动动画都好了：海报停一会儿再淡出，进大厅
+if (bootEl) Promise.all([introDone, preloadDone]).then(() => {
+  bootEl.querySelector('.bt-row b').textContent = '加载完成';
+  setTimeout(() => { bootEl.classList.add('out'); setTimeout(() => bootEl.remove(), 800); }, 900);
+});
 const grid = document.getElementById('char-grid');
 for (const ch of CHARACTERS) {
   const b = document.createElement('button');
@@ -888,7 +923,7 @@ const lobbyArsenal = new Arsenal(loader, gradient); // 大厅武器页 3D 展示
 let gunViewer = null;
 let navStage = null;
 let homeStage = null;
-const showHome = (ch) => homeStage?.show(ch, ch.persona || ch.id).catch((e) => console.warn('大厅角色加载失败', e));
+const showHome = (ch) => homeStage && whenLoaded(ch.file).then(() => homeStage?.show(ch, ch.persona || ch.id)).catch((e) => console.warn('大厅角色加载失败', e)); // 等预加载好再解析，不重复下载
 const lobbyApi = initLobby({
   gunViewer: (host) => (gunViewer = new GunViewer(host, lobbyArsenal)),
   navViewer: TEST ? null : (host) => (navStage = window.__ns = new NavStage(host, { loader, url: ASSETS.navShow })),

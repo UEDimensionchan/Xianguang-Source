@@ -1,2 +1,0 @@
-#stamina.fp { width: calc(var(--u) * 300); height: calc(var(--u) * 4); margin: calc(var(--u) * -2) 0 0 calc(var(--u) * -150); }
-#stamina.fp.on { opacity: .85; }

@@ -1,5 +1,0 @@
-.esc-rows { max-height: calc(var(--u) * 470); overflow-y: auto; padding-right: calc(var(--u) * 10); scrollbar-width: thin; scrollbar-color: rgba(31, 196, 173, .6) transparent; }
-.esc-rows::-webkit-scrollbar, .esc-klist::-webkit-scrollbar { width: 6px; }
-.esc-rows::-webkit-scrollbar-track, .esc-klist::-webkit-scrollbar-track { background: rgba(29, 35, 43, .06); }
-.esc-rows::-webkit-scrollbar-thumb, .esc-klist::-webkit-scrollbar-thumb { background: rgba(31, 196, 173, .6); }
-.esc-rows::-webkit-scrollbar-button, .esc-klist::-webkit-scrollbar-button { display: none; }

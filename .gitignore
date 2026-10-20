@@ -27,3 +27,8 @@ Thumbs.db
 Desktop.ini
 .vs/
 .idea/
+
+# 本项目的临时文件
+tools/patch/
+*.blend1
+server/node_modules/

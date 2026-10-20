@@ -1,6 +1,11 @@
 # 素材来源与授权记录
 
-所有素材均允许用于商业游戏和修改。上线前需要在游戏的「致谢 / Credits」页面写上下面标注 **需要署名** 的两项。
+> **本项目仅供学习使用，不盈利、不商用、不分发。** 素材版权归各自作者所有。
+
+下面分两类：
+
+- **开放授权素材**（CC0 / MIT / CC BY / VRoid Hub 授权等）：允许商用和修改。其中标注 **需要署名** 的两项要写进「致谢 / Credits」。
+- **限制再分发的素材**：Infima Games 枪械模型，以及文末「后来加入的角色模型」里的全部角色。它们只能按原作者条款个人使用，**不得再分发**。
 
 ## 需要署名（必须保留）
 
@@ -100,3 +105,42 @@
 | `Scene/City/Suburban/` | City Kit (Suburban) 2.0（GLB：树、围栏、花坛） | Kenney | https://kenney.nl/assets/city-kit-suburban |
 
 日式细节（便利店、自动贩卖机、灯笼、电线杆和电线、竖排灯箱、交番、歩道橋、路面「止まれ」等标字、车站招牌）都在 `src/street.js` 里用代码现场生成，不依赖外部文件。`UI/Lobby/map_street.jpg` 是游戏内截图。
+
+## 后来加入的角色模型（⚠ 禁止再分发）
+
+下面这些模型**不是**开放授权素材，作者条款都写明了**禁止再分发（包括改造后的版本）**。本项目只在个人非营利、学习用途下使用它们。模型文件里的 VRM meta 也标注了 `allowRedistribution: false`。
+
+| 文件 | 游戏内角色 | 来源 / 作者 | 授权要点 |
+|---|---|---|---|
+| `Character/VRM/Kikyo.vrm` | 澪 | Booth 付费模型「桔梗 Kikyo」，作者 ぽんでろ | VN3 ライセンス（随模型附带的 Kikyo_license.pdf）：个人非营利，禁止再分发 |
+| `Character/VRM/Mint.vrm` | 凛 | Booth 付费模型「ミント Mint」，作者 あまとうさぎ | VN3 ライセンス：个人非营利，禁止再分发 |
+| `Character/VRM/Selestia.vrm` | 星野 | Booth 付费模型「SELESTIA」，作者 ジンゴ | Redistribution_Prohibited（禁止再分发） |
+| `Character/VRM/Rin.vrm`、`Rin_acc.glb` | （备用） | VRoid 制作，meta 作者 pixiv VRoid Project；`Rin_acc.glb` 是在 Blender 里补做的配件 | meta：个人非营利，禁止再分发、禁止修改 |
+| `Character/VRM/MMD/SAKAMATA.vrm` | 露希 | 粉丝自制 MMD 模型（pmx），由 `tools/vrm` 转成 VRM | 「pmx&VRMモデル規約」：再分发严禁（含改造）；静画、动画以外的用途需联系作者；禁止用于 VR / AR 应用和 VRChat 等 |
+| `Character/VRM/MMD/BIJOU.vrm`、`BIJOU2.vrm` | 白羽 | 粉丝自制 MMD 模型，同上转换 | 同上规约 |
+| `Character/VRM/MMD/CHIHAYA.vrm`、`CHIHAYA2.vrm` | 黛音 | 粉丝自制 MMD 模型，同上转换 | 「モデル規約」：再分发严禁（含改造），**数据转换和上传到各类平台严禁**，禁止 AI 学习，其余同上 |
+| `Character/VRM/MMD/SAKUNA.vrm` | 绯樱 | 粉丝自制 MMD 模型，同上转换 | 「pmx&VRMモデル規約」：同 SAKAMATA |
+| `Character/VRM/MMD/PEKOMAMA.vrm` | 雪兔 | 粉丝自制 MMD 模型（作者 suyakouta，Fantia / FANBOX 支援者发布） | 作者明确反对转售、转载，规约同上 |
+| `Character/VRM/MMD/VIVI.vrm` | 琉璃 | 粉丝自制 MMD 模型，同上转换 | 同上规约 |
+| `Character/VRM/MMD/CALLI_*.vrm`（4 套） | 绮罗 | 粉丝自制 MMD 模型，同上转换 | 同上规约 |
+
+- 原始 pmx 和规约原文保存在本机的 `Desktop\Character\` 各模型文件夹里，没有放进本仓库。
+- 胸部缩小、骨骼改名、T 姿势、材质转换都由 `tools/vrm/pmx2vrm_blender.py` + `glb2vrm.py` 完成。
+
+## 美术图（UI）
+
+| 文件 | 说明 |
+|---|---|
+| `UI/poster.jpg` | 弦光海报（启动加载页） |
+| `UI/Lobby/nav_*.jpg` | 引航者头像 |
+| `UI/Skins/*.jpg` | 外观缩略图 |
+
+- 海报和头像由项目作者提供。
+- 外观缩略图是游戏内截图。
+- 画面中的角色形象来自上表中的模型，使用限制同上。
+
+## 展示动画
+
+| 文件 | 说明 |
+|---|---|
+| `Animation/nav_show.json` | 引航者出场 / 待机动画，在 Blender 里自制（`tools/anim/`），可自由使用 |

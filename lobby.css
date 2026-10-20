@@ -150,3 +150,17 @@
 @keyframes introTip { 50% { opacity: .35; } }
 .lb-profile .av { background: linear-gradient(160deg, #e4eef6, #c9d9e8); object-position: 50% 25%; }
 .lb-squad .slot.me img { background: linear-gradient(160deg, #e4eef6, #c9d9e8); object-fit: cover; object-position: 50% 25%; }
+/* 启动海报 + 资源加载进度（src/main.js 的 #boot，在启动动画下面，动画播完露出来） */
+#boot { position: fixed; inset: 0; z-index: 999; background: #eaf4fb; overflow: hidden; transition: opacity .7s ease, filter .7s ease; }
+#boot .bt-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 100% 100%; animation: btZoom 14s ease-out both; }
+@keyframes btZoom { from { transform: scale(1.06); } to { transform: scale(1); } }
+#boot .bt-load { position: absolute; right: 0; bottom: 0; width: min(34vw, 460px); padding: 8px 1.6vw 9px 60px; color: #fff; text-shadow: 0 1px 3px rgba(0, 20, 40, .7); background: linear-gradient(90deg, rgba(8, 22, 36, 0), rgba(8, 22, 36, .72) 45%); }
+#boot .bt-row { display: flex; align-items: baseline; gap: 10px; font-size: 13px; letter-spacing: 2px; }
+#boot .bt-row .bt-pct { margin-left: auto; }
+#boot .bt-row b { font-weight: 600; }
+#boot .bt-pct { font: 700 18px "Bahnschrift", "DIN Alternate", sans-serif; color: #33e6c8; letter-spacing: 1px; }
+#boot .bt-bar { margin-top: 4px; height: 3px; background: rgba(255, 255, 255, .18); border-radius: 2px; overflow: hidden; }
+#boot .bt-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #33e6c8, #8ff6ff); box-shadow: 0 0 10px rgba(51, 230, 200, .8); transition: width .25s; }
+#boot .bt-sub { display: none; }
+#boot .bt-row small { font-size: 11px; letter-spacing: 1px; opacity: .85; }
+#boot.out { opacity: 0; filter: blur(6px) brightness(1.3); pointer-events: none; }

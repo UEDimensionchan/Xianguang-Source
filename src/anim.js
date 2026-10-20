@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { preloadedJSON } from './preload.js';
 
 // 上半身骨骼（其余属于下半身：髋、腿、脚）
 const UPPER = new Set(['spine', 'chest', 'upperChest', 'neck', 'head',
@@ -15,7 +16,7 @@ const isUpper = (b) => UPPER.has(b) || /Thumb|Index|Middle|Ring|Little/.test(b);
 
 let dataPromise = null;
 export function loadAnimData(url) {
-  if (!dataPromise) dataPromise = fetch(url).then((r) => r.json());
+  if (!dataPromise) dataPromise = preloadedJSON(url).then((j) => j || fetch(url).then((r) => r.json()));
   return dataPromise;
 }
 

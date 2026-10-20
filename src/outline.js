@@ -32,7 +32,9 @@ export function addOutline(root, color = 0xff2a3d) {
     const mats = [].concat(o.material);
     if (mats.every((m) => m.isOutline)) return;
     // 脸上的眼睛、眉毛、睫毛、嘴这些都在头的轮廓里面，透明的贴片也不用描，省掉一大半绘制次数
-    if (mats.every((m) => m.transparent || /EYE|FACE(?!_00_SKIN)|Eye|Brow|Lash|Mouth/.test(m.name) && !/SKIN/.test(m.name))) return;
+    // （MMD 转的模型：口内、歯、白目、ハイライト、眉睫、舌、モーフ 这些也跳过）
+    if (mats.every((m) => m.transparent || /EYE|FACE(?!_00_SKIN)|Eye|Brow|Lash|Mouth/.test(m.name) && !/SKIN/.test(m.name)
+      || /顔|face|口内|歯|白目|ハイライト|眉|睫|舌|モーフ|^shadow|eyeball|eyeEX|brow|innermouth|teeth|tongue|trance/i.test(m.name))) return; // 脸整块不描边
     src.push(o);
   });
   for (const o of src) {

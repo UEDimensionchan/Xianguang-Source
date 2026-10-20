@@ -1,9 +1,0 @@
-{
-  "name": "prism-link-server",
-  "version": "0.1.0",
-  "description": "弦光 联机服务器：房间创建 / 搜索 / 加入，局内消息转发",
-  "main": "server.js",
-  "type": "commonjs",
-  "scripts": { "start": "node server.js" },
-  "dependencies": { "ws": "^8.18.0" }
-}
